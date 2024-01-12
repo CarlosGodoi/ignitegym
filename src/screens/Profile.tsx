@@ -6,6 +6,7 @@ import {
   Skeleton,
   Text,
   Heading,
+  useToast,
 } from "native-base";
 import { Alert, TouchableOpacity } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -23,6 +24,8 @@ export function Profile() {
   const [userPhoto, setUserPhoto] = useState(
     "https://github.com/CarlosGodoi.png"
   );
+
+  const toast = useToast();
 
   async function handleUserPhotoSelect() {
     setPhotoIsLoading(true);
@@ -45,9 +48,11 @@ export function Profile() {
         console.log(photoInfo);
 
         if (photoInfo.exists && photoInfo.size / 1024 / 1024 > 5) {
-          return Alert.alert(
-            "Essa imagem é muito grande. Escolha uma de até 5MB."
-          );
+          return toast.show({
+            title: "Essa imagem é muito grande.Escolha uma de até 5MB.",
+            placement: "top",
+            bgColor: "red.500",
+          });
         }
 
         setUserPhoto(photoSelected.assets[0].uri);
