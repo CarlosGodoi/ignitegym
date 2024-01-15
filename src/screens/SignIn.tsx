@@ -5,6 +5,8 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
+import { useAuth } from "@hooks/useAuth";
+
 import LogoSvg from "@assets/logo.svg";
 import BackgroundImg from "@assets/background.png";
 import { Input } from "@components/Input";
@@ -19,6 +21,7 @@ type FormData = yup.InferType<typeof signInSchema>;
 
 export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
+  const { signIn } = useAuth();
 
   const {
     control,
@@ -28,8 +31,8 @@ export function SignIn() {
     resolver: yupResolver(signInSchema),
   });
 
-  function handleLogin({ email, password }: FormData) {
-    console.log("DATA =>", email, password);
+  function handleSignIn({ email, password }: FormData) {
+    signIn(email, password);
   }
 
   function handleNewAccount() {
@@ -90,7 +93,7 @@ export function SignIn() {
             )}
           />
 
-          <Button title="Acessar" onPress={handleSubmit(handleLogin)} />
+          <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
         </Center>
 
         <Center mt={24}>
