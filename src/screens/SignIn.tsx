@@ -46,6 +46,7 @@ export function SignIn() {
   async function handleSignIn({ email, password }: FormData) {
     try {
       setIsLoading(true);
+
       await signIn(email, password);
     } catch (error) {
       const isAppError = error instanceof AppError;

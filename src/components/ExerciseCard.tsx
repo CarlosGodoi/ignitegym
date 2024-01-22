@@ -2,8 +2,14 @@ import { HStack, Heading, Image, Text, VStack, Icon } from "native-base";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 
-type Props = TouchableOpacityProps & {};
-export function ExerciseCard({ ...rest }: Props) {
+import { api } from "@services/api";
+
+import { ExerciseDTO } from "@dtos/ExerciseDTO";
+
+type Props = TouchableOpacityProps & {
+  data: ExerciseDTO;
+};
+export function ExerciseCard({ data, ...rest }: Props) {
   return (
     <TouchableOpacity {...rest}>
       <HStack
@@ -15,7 +21,7 @@ export function ExerciseCard({ ...rest }: Props) {
         mb={3}>
         <Image
           source={{
-            uri: "https://www.feitodeiridium.com.br/wp-content/uploads/2016/07/remada-unilateral.jpg",
+            uri: `${api.defaults.baseURL}/exercise/thumb/${data.thumb}`,
           }}
           alt="Imagem do exercício"
           w={16}
@@ -27,10 +33,10 @@ export function ExerciseCard({ ...rest }: Props) {
 
         <VStack flex={1}>
           <Heading color="white" fontSize="lg" fontFamily="heading">
-            Remada unilateral
+            {data.name}
           </Heading>
           <Text color="gray.200" fontSize="sm" mt={1} numberOfLines={2}>
-            3 séries x 12 repetições
+            {data.series} séries x {data.repetitions} repetições
           </Text>
         </VStack>
         <Icon as={Entypo} name="chevron-thin-right" color="gray.300" />
