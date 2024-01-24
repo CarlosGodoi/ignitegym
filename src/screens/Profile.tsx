@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from 'react';
 import {
   Center,
   ScrollView,
@@ -6,25 +6,25 @@ import {
   Skeleton,
   Text,
   Heading,
-  useToast,
-} from "native-base";
-import { TouchableOpacity } from "react-native";
-import defaultUserPhotoImg from "@assets/userPhotoDefault.png";
+  useToast
+} from 'native-base';
+import {TouchableOpacity} from 'react-native';
+import defaultUserPhotoImg from '@assets/userPhotoDefault.png';
 
-import { Controller, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import {Controller, useForm} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup';
 
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import * as yup from "yup";
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import * as yup from 'yup';
 
-import { Input } from "@components/Input";
-import { ScreenHeader } from "@components/ScreenHeader";
-import { UserPhoto } from "@components/UserPhoto";
-import { Button } from "@components/Button";
-import { useAuth } from "@hooks/useAuth";
-import { api } from "@services/api";
-import { AppError } from "@utils/AppError";
+import {Input} from '@components/Input';
+import {ScreenHeader} from '@components/ScreenHeader';
+import {UserPhoto} from '@components/UserPhoto';
+import {Button} from '@components/Button';
+import {useAuth} from '@hooks/useAuth';
+import {api} from '@services/api';
+import {AppError} from '@utils/AppError';
 
 const PHOTO_SIZE = 33;
 
@@ -37,22 +37,22 @@ type FormDataProps = {
 };
 
 const profileSchema = yup.object({
-  name: yup.string().required("Nome é obrigatório"),
+  name: yup.string().required('Nome é obrigatório'),
   password: yup
     .string()
-    .min(6, "A senha deve ter pelo menos 6 digitos.")
+    .min(6, 'A senha deve ter pelo menos 6 digitos.')
     .nullable()
-    .transform((value) => (!!value ? value : null)),
+    .transform(value => (!!value ? value : null)),
   confirm_password: yup
     .string()
     .nullable()
-    .transform((value) => (!!value ? value : null))
-    .oneOf([yup.ref("password")], "Senhas não coincidem")
-    .when("password", {
+    .transform(value => (!!value ? value : null))
+    .oneOf([yup.ref('password')], 'Senhas não coincidem')
+    .when('password', {
       is: (Field: any) => Field,
-      then: (schema) =>
-        schema.nullable().required("Informe a confirmação da senha."),
-    }),
+      then: schema =>
+        schema.nullable().required('Informe a confirmação da senha.')
+    })
 });
 
 export function Profile() {
@@ -60,17 +60,17 @@ export function Profile() {
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
 
   const toast = useToast();
-  const { user, updateUserProfile } = useAuth();
+  const {user, updateUserProfile} = useAuth();
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: {errors}
   } = useForm<FormDataProps>({
     defaultValues: {
       name: user.name,
-      email: user.email,
+      email: user.email
     },
-    resolver: yupResolver(profileSchema) as any,
+    resolver: yupResolver(profileSchema) as any
   });
 
   async function handleUserPhotoSelect() {
@@ -80,7 +80,7 @@ export function Profile() {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
         aspect: [4, 4],
-        allowsEditing: true,
+        allowsEditing: true
       });
 
       if (photoSelected.canceled) {
@@ -94,30 +94,31 @@ export function Profile() {
 
         if (photoInfo.exists && photoInfo.size / 1024 / 1024 > 5) {
           return toast.show({
-            title: "Essa imagem é muito grande.Escolha uma de até 5MB.",
-            placement: "top",
-            bgColor: "red.500",
+            title: 'Essa imagem é muito grande.Escolha uma de até 5MB.',
+            placement: 'top',
+            bgColor: 'red.500'
           });
         }
 
-        const fileExtension = photoSelected.assets[0].uri.split(".").pop();
+        const fileExtension = photoSelected.assets[0].uri.split('.').pop();
 
         const photoFile = {
           name: `${user.name}.${fileExtension}`.toLowerCase(),
           uri: photoSelected.assets[0].uri,
-          type: `${photoSelected.assets[0].type}/${fileExtension}`,
+          type: `${photoSelected.assets[0].type}/${fileExtension}`
         } as any;
 
         const userPhotoUploadForm = new FormData();
-        userPhotoUploadForm.append("avatar", photoFile);
+        userPhotoUploadForm.append('avatar', photoFile);
 
         const avatarUpdatedResponse = await api.patch(
-          "/users/avatar",
+          '/users/avatar',
           userPhotoUploadForm,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
-            },
+              'Content-Type': 'multipart/form-data',
+              accept: 'application/json'
+            }
           }
         );
 
@@ -127,9 +128,9 @@ export function Profile() {
         updateUserProfile(userUpdated);
 
         toast.show({
-          title: "Foto atualizada com sucesso!",
-          placement: "top",
-          bgColor: "green.500",
+          title: 'Foto atualizada com sucesso!',
+          placement: 'top',
+          bgColor: 'green.500'
         });
       }
     } catch (error) {
@@ -146,26 +147,26 @@ export function Profile() {
       const userUpdated = user;
       userUpdated.name = data.name;
 
-      await api.put("/users", data);
+      await api.put('/users', data);
 
       await updateUserProfile(userUpdated);
 
       toast.show({
-        title: "Perfil atualizado com sucesso!",
-        placement: "top",
-        bgColor: "green.500",
+        title: 'Perfil atualizado com sucesso!',
+        placement: 'top',
+        bgColor: 'green.500'
       });
     } catch (error) {
       const isAppError = error instanceof AppError;
 
       const title = isAppError
         ? error.message
-        : "Não foi possível atualizar os dados. Tente novamente mais tarde.";
+        : 'Não foi possível atualizar os dados. Tente novamente mais tarde.';
 
       toast.show({
         title,
-        placement: "top",
-        bgColor: "red.500",
+        placement: 'top',
+        bgColor: 'red.500'
       });
     } finally {
       setIsUpdating(false);
@@ -175,7 +176,7 @@ export function Profile() {
   return (
     <VStack flex={1}>
       <ScreenHeader title="Perfil" />
-      <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
+      <ScrollView contentContainerStyle={{paddingBottom: 36}}>
         <Center mt={6} px={10}>
           {photoIsLoading ? (
             <Skeleton
@@ -189,7 +190,7 @@ export function Profile() {
             <UserPhoto
               source={
                 user.avatar
-                  ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                  ? {uri: `${api.defaults.baseURL}/avatar/${user.avatar}`}
                   : defaultUserPhotoImg
               }
               alt="Foto do perfil"
@@ -211,7 +212,7 @@ export function Profile() {
           <Controller
             control={control}
             name="name"
-            render={({ field: { value, onChange } }) => (
+            render={({field: {value, onChange}}) => (
               <Input
                 placeholder="Nome"
                 bg="gray.600"
@@ -225,7 +226,7 @@ export function Profile() {
           <Controller
             control={control}
             name="email"
-            render={({ field: { value, onChange } }) => (
+            render={({field: {value, onChange}}) => (
               <Input
                 bg="gray.600"
                 placeholder="E-mail"
@@ -248,7 +249,7 @@ export function Profile() {
           <Controller
             control={control}
             name="old_password"
-            render={({ field: { onChange } }) => (
+            render={({field: {onChange}}) => (
               <Input
                 bg="gray.600"
                 placeholder="Senha antiga"
@@ -260,7 +261,7 @@ export function Profile() {
           <Controller
             control={control}
             name="password"
-            render={({ field: { onChange } }) => (
+            render={({field: {onChange}}) => (
               <Input
                 placeholder="Nova senha"
                 bg="gray.600"
@@ -273,7 +274,7 @@ export function Profile() {
           <Controller
             control={control}
             name="confirm_password"
-            render={({ field: { onChange } }) => (
+            render={({field: {onChange}}) => (
               <Input
                 placeholder="Confirme nova senha"
                 bg="gray.600"
